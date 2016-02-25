@@ -1,0 +1,6 @@
+bar.tex
+*.out
+*.aux
+*.log
+*.pdf
+*.pyc

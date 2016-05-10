@@ -27,7 +27,7 @@ class Weave(Parser):
         if self.ext == "md":
             print "```"
             if self.links:
-                s = "*Refers to: "
+                s = "*References: "
                 for num, link in enumerate(self.links, 1):
                     comma = (num < len(self.links)) and ", " or ""
                     s += "[" + link + "](#" + link + ")" + comma
@@ -36,7 +36,7 @@ class Weave(Parser):
         elif self.ext == "tex":
             print "\\end{verbatim}"
             if self.links:
-                print "\\textit{Refers to: "
+                print "\\textit{References: "
                 for num, link in enumerate(self.links, 1):
                     comma = (num < len(self.links)) and "," or ""
                     print "\\hyperref[" + link + "]{" + link + "}" + comma

@@ -106,7 +106,7 @@ commonly used in RDF.
 <<semantic info about spiderman>>
 <<semantic info about the green goblin>>
 ```
-*Refers to: [semantic info about spiderman](#semantic info about spiderman), [semantic info about the green goblin](#semantic info about the green goblin)*
+*References: [semantic info about spiderman](#semantic info about spiderman), [semantic info about the green goblin](#semantic info about the green goblin)*
 
 The bigger picture
 ====

@@ -1,23 +1,23 @@
 \documentclass{article}
-\usepackage{hyperref}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
 \title{Semantic markup of \LaTeX and Markdown documents}
 \author{Will Ware}
 \date{24 February 2016}
 \begin{document}
 \maketitle
 \section {Preliminaries}
-My goal here is to figure out a nice clean way to embed RDF information in the source
-of LaTeX and Markdown documents, such that a pre-processor can either extract the RDF
-in a suitable format (e.g. Turtle) or do any cleanup that the document source needs
-before being processed to HTML or PDF.
+My goal here is to figure out what I call a \textit{machine-tractable} scientific literature:
+a nice clean way to embed machine-processable semantic information in the source of LaTeX
+and Markdown documents, such software pre-processors can extract the information in
+machine-tractable form and can also generate (ideally publication-ready) HTML or PDF output.
 
 This idea is part of a larger
 \href{http://willware.blogspot.com/2013/10/bar-camp-boston-2013-talk-on-automation.html}{group of ideas}
-that I have been thinking about since around 2010. In the blog post linked above, I
-laid out the following agenda:
+that I have been thinking about since around 2010.
 
+\pretolerance=150
 \begin{quotation}
-to formulate a linked language of science that machines can understand. Publish
+...to formulate a linked language of science that machines can understand. Publish
 papers in formats like RDF/Turtle or JSON or JSON-LD or YAML. Link scientific
 literature to existing semantic networks (DBpedia, Freebase, Google Knowledge Graph,
 LinkedData.org, Schema.org etc). Create schemas for scientific domains and for the
@@ -28,58 +28,184 @@ journals, accessible to people and machines everywhere. Maybe use Stackoverflow 
 a model for peer review.
 \end{quotation}
 
-This is an attempt not to publish papers in RDF serialization formats, but to embed
-those formats gracefully in better-known and more useful contexts like LaTex source
-or Markdown source. Ideally the final result would be a pre-processor that could
-accommodate these and any future formats that might arise in the future.
+My immediate concern is with the task of comfortably embedding such formats in LaTeX or
+Markdown source. I say \textit{comfortably} because I hope for eventual wide adoption by
+the authors of scientific literature, and that is unlikely if semantic markup presents any
+significant additional burden to publication. Consequently the syntax for such markup must
+be simple and its meaning obvious.
 
-It would be good not to ask the paper's author to write his reasoning twice,
-in \LaTeX and in RDF, where preferably, ideas would be expressed just once,
-in some format that is easily translatable to RDF and to \LaTeX source.
+In particular it should not be necessary to specify the same idea twice, once in English
+and again in machine-tractable form. As with mathematical equations, the machine-tractable
+representation should be readable and expressive to the human audience as well as the
+machine.
+
+\subsection{Machine representations}
+
+There have been huge advances in machine learning in recent years, fueled by large
+investments from Google, Facebook, and other organizations. I have not kept up with
+this work as well as I would like, and no doubt my ideas in this area will seem
+antiquated to those who have.
+
+I have tried not to commit this approach to any particular representation, but I've
+tended to use [RDF/Turtle](https://www.w3.org/TR/turtle/) because first-order logic
+doesn't sound like a bad place to start for machine reasoning about science. The notion
+of specifying information or knowledge as a semantic network seems to me a useful one.
+
+\subsection{Notation}
+
+These considerations led me to adopt a
+\href{https://en.wikipedia.org/wiki/Literate_programming}{literate programming} approach,
+borrowing notationally from Norman Ramsey's \href{http://www.cs.tufts.edu/~nr/noweb/}{noweb}.
+I am \href{https://github.com/JonathanAquino/noweb.py}{not the first} to rewrite noweb in
+Python.
+
+In literate programming, one writes a program in small pieces, discussing each in turn.
+Likewise, a semantic network can be specified in pieces, with discussion. Here the first
+line gives a name to this piece so that it can be referenced elsewhere. The remaining
+lines are in the RDF/Turtle language. They tell us that, in the world of Marvel comics
+superheros, Spiderman is a person named \textit{Spiderman} who has an enemy (the Green Goblin,
+to be discussed shortly).
+
+<<semantic info about spiderman>> =
+<#spiderman>
+    a foaf:Person ;
+    foaf:name "Spiderman" ;
+    rel:enemyOf <#green-goblin> .
+@
+
+Terms like \textit{foaf:Person} refer to \href{http://xmlns.com/foaf/spec/}{FOAF}, or
+\textit{friend of a friend}, a library of semantic relationships between people. Another
+similar library is \href{http://vocab.org/relationship/}{Relationship}, which include the
+\textit{rel:enemyOf} term.
+
+The components of a semantic network are triplets. Blah blah blah triplets....
+semicolons... commans... period.
+
+The Green Goblin is another character in the Marvel comics universe, not so different
+from Spiderman in some ways.
+
+<<semantic info about the green goblin>> =
+<#green-goblin>
+    a foaf:Person ;
+    foaf:name "Green Goblin" ;
+    rel:enemyOf <#spiderman> .
+@
+
+Finally we have a wrapper for the two pieces of semantic network above. Here we
+provide referents for the prefixes \textit{foaf} and \textit{rel}, and other prefixes
+that are commonly used in RDF.
 
 <<rdf>> =
 @base <http://example.org/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix rel: <http://www.perceive.net/schemas/relationship/> .
-<<rdf-green-goblin>>
-<<rdf-spiderman>>
+@prefix rel: <http://vocab.org/relationship/> .
+<<semantic info about spiderman>>
+<<semantic info about the green goblin>>
 @
 
-Let's give some information about the Green Goblin
+\section{The bigger picture}
 
-<<rdf-green-goblin>> =
-<#green-goblin>
-    rel:enemyOf <#spiderman> ;
-    a foaf:Person ;    # in the context of the Marvel universe
-    foaf:name "Green Goblin" .
-@
+\subsection{Inference}
 
-and also about Spiderman.
+In RDF terms, \textit{inference} can be considered a synonym for \textit{deduction}.
+Mechanically, it's a process whereby some old RDF triples go in, and some new RDF triples
+come out. In practice this is done with software called a \textit{reasoner}, which is
+given a set of rules defining what constitutes valid inference.
 
-<<rdf-spiderman>> =
-<#spiderman>
-    rel:enemyOf <#green-goblin> ;
-    a foaf:Person ;
-    foaf:name "Spiderman" .
-@
+Google \textit{semantic reasoner} or \textit{RDF reasoner} to learn more about reasoners.
 
-Now let's try that with plain text.
+\href{https://en.wikipedia.org/wiki/Rule_of_inference}{Inference rules} are often written
+using languages like
+\href{https://www.w3.org/2001/sw/wiki/OWL}{OWL} which capture some way of thinking
+about knowledge. For instance, OWL includes a lot of operators from set theory.
 
-<<*>> =
-  <<abc>>
-  <<def>>
-@
+\subsection{Closures}
 
-<<abc>> =
-  Here is the first line.
-  And the second line.
-@
+By \textit{closure} I mean
+\href{https://en.wikipedia.org/wiki/Epistemic_closure}{epistemic closure},
+not the
+\href{https://en.wikipedia.org/wiki/Closure_(computer_programming)}{computer science}
+kind. A subset of epistemic closure is
+\href{https://en.wikipedia.org/wiki/Closure_(mathematics)}{mathematical closure}.
 
-<<def>> =
-  Here is the third line.
-  And the fourth line.
-@
+An example of mathematical closure is the fact that integers are closed under addition.
+You can add any two integers and you'll always get an integer result.
+
+An epistemic closure is basically a complete system of thought: given a set of axioms,
+you've done all the reasoning to arrive at all possible conclusions, and that whole set
+of axioms and conclusions is your state of knowledge.
+
+An \href{https://www.w3.org/TR/2002/WD-rdf-mt-20020214/#rdf_entail}{RDF closure} is
+the RDF subset of that, a complete set of mutually inferrable RDF triples. Any triple you
+can arrive at by performing inference on the existing triples is another existing triple.
+There is no further inference left to be done.
+
+An RDF closure exists in the context of a set of axioms and inference rules.
+
+In this attempt to trivialize science to what is representable in RDF, a state of scientific
+knowledge is represented by an RDF closure, which is in turn determined by its axioms and
+inference rules. It is may never be necessary to enumerate the entire contents of the
+closure.
+
+\subsection{Hypotheses, and Karl Popper}
+
+Assuming you've got a RDF closure representing the state of your scientific knowledge,
+the next step is to propose a new hypothesis, which means adding one or more new axioms.
+Then you infer whatever you can to arrive at the consequences of your hypothesis. Hopefully
+some of these will be empirically testable, and in that event you design experiments and
+run them to see if any of the predictions are empirically falsifiable.
+
+If a prediction is falsified then that hypothesis is falsified, at least in the context
+of the existing set of hypotheses. Then you have a whole epistemological can of worms,
+because maybe it's only incompatible with one previous hypothesis, and maybe that one
+previous hypothesis might not be true. Because at no point are hypotheses \textit{proven}
+to be true, they have only not yet been falsified.
+
+Assuming for sake of argument that the list of inference rules is essentially constant...
+
+The current set of axioms/hypotheses could be kept in a git repository, and when you
+want to test a new hypothesis you create a branch in the repository. That branch doesn't
+get merged into master until you've got a high level of confidence in the new hypothesis.
+
+Try to come up with some meaningful numerical measure of confidence in the new hypothesis
+and include metadata for that in the branch. If the master branch advances significantly
+while the new hypothesis is under study, it would make sense to merge master back into
+the hypothesis branch.
+
+\subsection{Designing experiments}
+
+Initially, it probably makes sense for this machine to periodically consult a human and
+say
+
+\begin{quotation}
+Here are a bunch of hypotheses I've generated, starting from where the master branch
+was at time T. For each hypothesis, I've listed several predictions. You, the human,
+should decide which of these to pursue, and you should test the predictions
+empirically because I don't yet know how to design and run experiments. Please let me
+know which hypotheses are non-starters, and which predictions are a-priori known to fail.
+\end{quotation}
+
+Over time, the human will probably see opportunities for automation in (a) pruning unproductive
+hypotheses and predictions, and (b) turning predictions into experiments. As that happens,
+the machine can handle progressively larger portions of the process.
+
+Ross King's \href{https://en.wikipedia.org/wiki/Robot_Scientist}{Adam robot} is an existence
+proof that this can be done in a non-trivial way.
+
+\subsection{Starting small}
+
+Maybe begin with experiments that can be done entirely on a computer.
+
+* Number theories, e.g. conjectures about prime numbers
+* Solving mazes and other puzzles.
+* Mice? Drosophila? Bacteria or yeast in Petri dishes?
+
+I'm afraid that exhausts my imagination. But I think well-designed puzzles could be a
+fruitful area, and could give me something tangible to work on until I figure out how to
+work on real scientific problems.
+
+Yeast in Petri dishes is how Ross King got started, maybe that's the way to go.
 
 \end{document}

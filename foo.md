@@ -1,4 +1,4 @@
-Semantic markup of LaTeX and Markdown documents
+Preliminaries
 ====
 
 Overview

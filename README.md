@@ -1,4 +1,4 @@
-Semantic markup of LaTeX and Markdown documents
+Embedding semantic markup in LaTeX and Markdown documents
 ====
 
 Overview

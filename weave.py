@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-import os
 import re
 import sys
 
-from parser import Link, Parser
+from parser import Parser
 
 
 class Weave(Parser):
-    def __init__(self, ext):
-        self.ext = ext
+    def __init__(self, _ext):
+        Parser.__init__(self)
+        self.ext = _ext
         self.links = []
 
     def define_chunk(self, line, name):
@@ -58,6 +58,6 @@ class Weave(Parser):
 
 
 fname = sys.argv[1]
-ext = re.compile('.*\.([^\.]+)').match(fname).group(1)
+ext = re.compile(r'.*\.([^\.]+)').match(fname).group(1)
 w = Weave(ext)
 w.read(open(fname))

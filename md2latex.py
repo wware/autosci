@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 
+import argparse
 import logging
 import re
 import sys
 
-logging.getLogger().setLevel(logging.DEBUG)
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--debug", action="store_true")
+parser.add_argument("-t", "--title", default="Document title",
+                    help="set the document title")
+
+args = parser.parse_args()
+if args.debug:
+    logging.getLogger().setLevel(logging.DEBUG)
 
 R = sys.stdin.read()
 
@@ -23,11 +31,9 @@ while True:
         break
     m, n = s.start(), s.end()
     S, T, R = R[:m], R[m:n], R[n:]
-    logging.debug(T)
     Rnew += re.sub(r"\"([^\"]+)\"", r'\\textit{\1}', S) + T
     s = r2.search(R)
     assert s is not None, 'Semantic block does not end correctly.'
-    logging.debug(R[s.end()-8:s.end()])
     Rnew += R[:s.end()]
     R = R[s.end():]
 R = Rnew + R
@@ -98,7 +104,7 @@ R = Rnew + R
 
 print """\\documentclass{article}
 \\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
-\\title{Semantic markup of \\LaTeX and Markdown documents}
+\\title{""" + args.title.replace('LaTeX', '\\LaTeX') + """}
 \\author{Will Ware}
 \\date{24 February 2016}
 \\begin{document}

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 import sys
 
 from parser import Link, Parser
@@ -8,6 +7,7 @@ from parser import Link, Parser
 
 class Tangle(Parser):
     def __init__(self):
+        Parser.__init__(self)
         self.last_chunk_name = None
 
     def define_chunk(self, line, name):
